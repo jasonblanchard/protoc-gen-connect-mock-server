@@ -8,7 +8,7 @@ import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
-	v1 "github.com/jasonblanchard/protoc-gen-mock-server/gen/greet/v1"
+	v1 "github.com/jasonblanchard/protoc-gen-connect-mock-server/gen/greet/v1"
 	http "net/http"
 	strings "strings"
 )

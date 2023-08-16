@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package greet.v1;
+
+import "google/type/datetime.proto";
+
+message Nested {
+  string test = 1;
+}
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetResponse {
+  string greeting = 1;
+  Nested nested = 2;
+  repeated Nested thingies = 3;
+  repeated string greetings = 4;
+  bool bool_kind = 5;
+  int32 int32_kind = 6;
+  sint32 sint32_kind = 7;
+  bytes bytes_kind = 8;
+  float float_kind = 10;
+  Status status = 11;
+  // google.type.DateTime created_at = 12;
+}
+
+service GreetService {
+  rpc Greet(GreetRequest) returns (GreetResponse) {}
+}
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_OK = 1;
+  STATUS_NOT_OK = 2;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  Status status = 1;
+}
+
+service StatusService {
+  rpc Status(StatusRequest) returns (StatusResponse) {}
+}

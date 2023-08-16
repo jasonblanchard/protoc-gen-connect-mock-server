@@ -1,0 +1,9 @@
+- Dynamic mode - random values for types
+  - Truly random per type?
+  - And/or semantically random? i.e. "things that look like an email"
+- Per-route configuration - pass in a config file that specifies:
+  - Return value
+  - Error typee
+- Per message type configuration
+  - Default value
+- Streaming responses

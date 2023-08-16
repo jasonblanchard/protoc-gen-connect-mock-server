@@ -1,5 +1,7 @@
 version: v1
 name: buf.build/jasonblanchard/protoc-gen-connect-mock-server
+deps:
+  - buf.build/googleapis/googleapis
 breaking:
   use:
     - FILE

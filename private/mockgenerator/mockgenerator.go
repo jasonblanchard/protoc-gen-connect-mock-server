@@ -2,24 +2,30 @@ package mockgenerator
 
 import (
 	"fmt"
+	"strings"
 
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type GenerateFileInput struct {
-	PkgName string
-	File *protogen.File
-	Filename string
-	G *protogen.GeneratedFile
+	PkgName       string
+	File          *protogen.File
+	Filename      string
+	GeneratedFile *protogen.GeneratedFile
 }
 
 func GenerateFile(i *GenerateFileInput) error {
-	trimmedImportPath := i.File.GoImportPath.String()[1:len(i.File.GoImportPath.String())-1]
+	trimmedImportPath := i.File.GoImportPath.String()[1 : len(i.File.GoImportPath.String())-1]
+	connectPkgName := string(i.File.GoPackageName) + "connect"
+	pkgPathSlice := strings.Split(trimmedImportPath, "/")
+	pkgNamespace := pkgPathSlice[len(pkgPathSlice)-1]
 
 	importsStringInput := &ImportsStringInput{
-		PkgName: i.PkgName,
-		GoImportPath: trimmedImportPath,
-		ConnectFilePath: trimmedImportPath + "/" + string(i.File.GoPackageName) + "connect",
+		PkgName:         i.PkgName,
+		GoImportPath:    trimmedImportPath,
+		ConnectFilePath: trimmedImportPath + "/" + connectPkgName,
+		PkgNamespace:    pkgNamespace,
 	}
 
 	importsString, err := importsString(importsStringInput)
@@ -27,69 +33,109 @@ func GenerateFile(i *GenerateFileInput) error {
 	if err != nil {
 		return fmt.Errorf("error getting importsString: %w", err)
 	}
-	
-	i.G.P(importsString)
+
+	i.GeneratedFile.P(importsString)
 
 	for _, msg := range i.File.Messages {
-		i.G.P("")
-		i.G.P("func NewMock", msg.Desc.Name(), "() *v1.", msg.Desc.Name(), " {")
-		i.G.P("mock := &v1.", msg.Desc.Name(), "{")
+		input := &MockMessageInput{
+			Name: string(msg.Desc.Name()),
+		}
+
 		for _, field := range msg.Fields {
-			// TODO: Handle IsMap, Enum()
-
-			if field.Desc.IsList() {
-				if field.Desc.Message() != nil {
-					i.G.P(field.GoName, ": ", "[]*v1.", field.Message.Desc.Name(), "{NewMock", field.Message.Desc.Name(), "()},")
-				} else {
-					// Otherwise, use mock scalar value
-					i.G.P(field.GoName, ": ", "[]string{\"chello\", \"chello\", \"chello\"},") // TODO: Handle more than strings
-				}
-			} else {
-				if field.Desc.Message() != nil {
-					i.G.P(field.GoName, ": NewMock", field.GoName, "(),")
-				} else {
-					// Otherwise, use mock scalar value
-					i.G.P(field.GoName, ": ", "\"chello\",") // TODO: Handle more than strings
-				}
-			}
+			input.Fields = append(input.Fields, Field{
+				Name:  field.GoName,
+				Value: fieldValueString(field, pkgNamespace),
+			})
 		}
-		i.G.P("}")
-		i.G.P("return mock")
-		i.G.P("}")
-		i.G.P("")
+
+		messageString, err := mockMessageString(input)
+
+		if err != nil {
+			return fmt.Errorf("error getting mock message string: %w", err)
+		}
+
+		i.GeneratedFile.P(messageString)
+		i.GeneratedFile.P("")
 	}
 
 	for _, service := range i.File.Services {
-		i.G.P("")
-		i.G.P("type ", service.GoName, "MockServer ", "struct{}")
-		i.G.P("")
-		i.G.P("")
+		input := &MockServerInput{
+			GoName: service.GoName,
+		}
+
 		for _, method := range service.Methods {
-			i.G.P("func (", service.GoName, "MockServer) ", method.GoName, "(context.Context, *connect_go.Request[v1.", method.Desc.Input().Name(), "]) (*connect_go.Response[v1.", method.Desc.Output().Name(), "], error) {")
-			i.G.P("resp := &connect_go.Response[v1.", method.Desc.Output().Name(), "]", "{}")
-			i.G.P("resp.Msg = NewMock", method.Desc.Output().Name(), "()")
-			i.G.P("return resp, nil")
-			i.G.P("}")
+			input.Methods = append(input.Methods, MockMethod{
+				MockServerName: service.GoName + "MockServer",
+				GoName:         method.GoName,
+				InputName:      string(method.Desc.Input().Name()),
+				OutputName:     string(method.Desc.Output().Name()),
+			})
 		}
+
+		serverString, err := mockServerString(input)
+
+		if err != nil {
+			return fmt.Errorf("error creating mock server string: %w", err)
+		}
+
+		i.GeneratedFile.P(serverString)
 	}
 
-	i.G.P("")
-	i.G.P("func main() {")
-	i.G.P("mux := http.NewServeMux()")
-	for _, service := range i.File.Services {
-		i.G.P("server := &", service.GoName, "MockServer{}")
-		i.G.P("path, handler := greetv1connect.NewGreetServiceHandler(server)")
-		i.G.P("mux.Handle(path, handler)")
+	mainFuncStringInput := &MainFuncStringInput{
+		Handlers: []MainFuncHandler{},
 	}
-	
-	i.G.P("corsHandler := cors.New(cors.Options{")
-	i.G.P("AllowedOrigins: []string{\"https://buf.build\"},")
-	i.G.P("AllowCredentials: true,")
-	i.G.P("AllowedMethods:   []string{http.MethodPost, http.MethodOptions},")
-	i.G.P("AllowedHeaders: []string{\"*\"},")
-	i.G.P("}).Handler(mux)")
-	i.G.P("http.ListenAndServe(\":8080\", h2c.NewHandler(corsHandler, &http2.Server{}))")
-	i.G.P("}")
+
+	for _, service := range i.File.Services {
+		mainFuncStringInput.Handlers = append(mainFuncStringInput.Handlers, MainFuncHandler{
+			ConnectPkg:  connectPkgName,
+			ServiceName: service.GoName,
+		})
+	}
+
+	mainFuncString, err := mainFuncString(mainFuncStringInput)
+
+	if err != nil {
+		return fmt.Errorf("error creating main func: %w", err)
+	}
+
+	i.GeneratedFile.P("")
+	i.GeneratedFile.P(mainFuncString)
 
 	return nil
+}
+
+func fieldValueString(field *protogen.Field, pkgNamespace string) string {
+	// TODO: Handle IsMap
+
+	if field.Desc.IsList() {
+		if field.Desc.Message() != nil {
+			return "[]*v1." + string(field.Message.Desc.Name()) + "{NewMock" + string(field.Message.Desc.Name()) + "()}"
+		} else {
+			return fmt.Sprintf("[]string{%v, %v, %v}", getStaticFieldValue(field, pkgNamespace), getStaticFieldValue(field, pkgNamespace), getStaticFieldValue(field, pkgNamespace))
+		}
+	} else {
+		if field.Desc.Message() != nil {
+			return "NewMock" + field.GoName + "()"
+		} else {
+			return getStaticFieldValue(field, pkgNamespace)
+		}
+	}
+}
+
+func getStaticFieldValue(field *protogen.Field, pkgNamespace string) string {
+	// TODO: GroupKind?
+	switch field.Desc.Kind() {
+	case protoreflect.EnumKind:
+		return fmt.Sprintf("%s.%s_%s", pkgNamespace, field.GoName, field.Enum.Values[len(field.Enum.Values)-1].Desc.Name())
+	case protoreflect.BoolKind:
+		return "false"
+	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Uint32Kind, protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Uint64Kind, protoreflect.Sfixed32Kind, protoreflect.Fixed32Kind, protoreflect.FloatKind, protoreflect.Sfixed64Kind, protoreflect.Fixed64Kind, protoreflect.DoubleKind:
+		return "123"
+	case protoreflect.StringKind:
+		return "\"string\""
+	case protoreflect.BytesKind:
+		return "[]byte{1,2,3}"
+	default:
+		return "\"UNIMPLEMENTED\""
+	}
 }

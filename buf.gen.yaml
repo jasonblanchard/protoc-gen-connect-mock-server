@@ -2,14 +2,16 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/jasonblanchard/protoc-gen-connect-mock-server/gen
+    default: github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen
+    except:
+      - buf.build/googleapis/googleapis
 plugins:
   - plugin: buf.build/protocolbuffers/go
-    out: gen
+    out: examples/gen
     opt: paths=source_relative
   - plugin: buf.build/bufbuild/connect-go
-    out: gen
+    out: examples/gen
     opt: paths=source_relative
   - plugin: connect-mock-server
-    out: gen
+    out: examples/gen
     opt: paths=source_relative

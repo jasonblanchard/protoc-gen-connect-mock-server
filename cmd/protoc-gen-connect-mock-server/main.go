@@ -12,23 +12,14 @@ func main() {
 				continue
 			}
 
-			filename := f.GeneratedFilenamePrefix + "_connect_mock_server/main.pb.go"
+			filename := f.GeneratedFilenamePrefix + "connectmockserver/main.pb.go"
 			g := gen.NewGeneratedFile(filename, f.GoImportPath)
 
-			// fileString, err := module.CreateFileString(f)
-
-			// if (err != nil) {
-			// 	return fmt.Errorf("error creating file string: %w", err)
-			// }
-
-			// g.P(fileString)
-
-			// generateFile(gen, f, filename, g)
 			input := &mockgenerator.GenerateFileInput{
 				PkgName: "protoc-gen-connect-mock-server",
 				File: f,
 				Filename: filename,
-				G: g,
+				GeneratedFile: g,
 			}
 			err := mockgenerator.GenerateFile(input)
 

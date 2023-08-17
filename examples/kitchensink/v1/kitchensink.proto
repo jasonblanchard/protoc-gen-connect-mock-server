@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package kitchensink.v1;
+package examples.kitchensink.v1;
 
 import "google/type/datetime.proto";
 

@@ -22,7 +22,7 @@ const _ = connect_go.IsAtLeastVersion0_1_0
 
 const (
 	// ElizaServiceName is the fully-qualified name of the ElizaService service.
-	ElizaServiceName = "eliza.v1.ElizaService"
+	ElizaServiceName = "examples.eliza.v1.ElizaService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -34,18 +34,18 @@ const (
 // period.
 const (
 	// ElizaServiceSayProcedure is the fully-qualified name of the ElizaService's Say RPC.
-	ElizaServiceSayProcedure = "/eliza.v1.ElizaService/Say"
+	ElizaServiceSayProcedure = "/examples.eliza.v1.ElizaService/Say"
 )
 
-// ElizaServiceClient is a client for the eliza.v1.ElizaService service.
+// ElizaServiceClient is a client for the examples.eliza.v1.ElizaService service.
 type ElizaServiceClient interface {
 	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
 }
 
-// NewElizaServiceClient constructs a client for the eliza.v1.ElizaService service. By default, it
-// uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and sends
-// uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or
-// connect.WithGRPCWeb() options.
+// NewElizaServiceClient constructs a client for the examples.eliza.v1.ElizaService service. By
+// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
+// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
@@ -65,12 +65,12 @@ type elizaServiceClient struct {
 	say *connect_go.Client[v1.SayRequest, v1.SayResponse]
 }
 
-// Say calls eliza.v1.ElizaService.Say.
+// Say calls examples.eliza.v1.ElizaService.Say.
 func (c *elizaServiceClient) Say(ctx context.Context, req *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
 	return c.say.CallUnary(ctx, req)
 }
 
-// ElizaServiceHandler is an implementation of the eliza.v1.ElizaService service.
+// ElizaServiceHandler is an implementation of the examples.eliza.v1.ElizaService service.
 type ElizaServiceHandler interface {
 	Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error)
 }
@@ -86,7 +86,7 @@ func NewElizaServiceHandler(svc ElizaServiceHandler, opts ...connect_go.HandlerO
 		svc.Say,
 		opts...,
 	)
-	return "/eliza.v1.ElizaService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/examples.eliza.v1.ElizaService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ElizaServiceSayProcedure:
 			elizaServiceSayHandler.ServeHTTP(w, r)
@@ -100,5 +100,5 @@ func NewElizaServiceHandler(svc ElizaServiceHandler, opts ...connect_go.HandlerO
 type UnimplementedElizaServiceHandler struct{}
 
 func (UnimplementedElizaServiceHandler) Say(context.Context, *connect_go.Request[v1.SayRequest]) (*connect_go.Response[v1.SayResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("eliza.v1.ElizaService.Say is not implemented"))
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("examples.eliza.v1.ElizaService.Say is not implemented"))
 }

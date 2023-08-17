@@ -22,9 +22,9 @@ const _ = connect_go.IsAtLeastVersion0_1_0
 
 const (
 	// TestServiceName is the fully-qualified name of the TestService service.
-	TestServiceName = "kitchensink.v1.TestService"
+	TestServiceName = "examples.kitchensink.v1.TestService"
 	// StatusServiceName is the fully-qualified name of the StatusService service.
-	StatusServiceName = "kitchensink.v1.StatusService"
+	StatusServiceName = "examples.kitchensink.v1.StatusService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -36,20 +36,20 @@ const (
 // period.
 const (
 	// TestServiceTestProcedure is the fully-qualified name of the TestService's Test RPC.
-	TestServiceTestProcedure = "/kitchensink.v1.TestService/Test"
+	TestServiceTestProcedure = "/examples.kitchensink.v1.TestService/Test"
 	// StatusServiceStatusProcedure is the fully-qualified name of the StatusService's Status RPC.
-	StatusServiceStatusProcedure = "/kitchensink.v1.StatusService/Status"
+	StatusServiceStatusProcedure = "/examples.kitchensink.v1.StatusService/Status"
 )
 
-// TestServiceClient is a client for the kitchensink.v1.TestService service.
+// TestServiceClient is a client for the examples.kitchensink.v1.TestService service.
 type TestServiceClient interface {
 	Test(context.Context, *connect_go.Request[v1.TestRequest]) (*connect_go.Response[v1.TestResponse], error)
 }
 
-// NewTestServiceClient constructs a client for the kitchensink.v1.TestService service. By default,
-// it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and
-// sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC()
-// or connect.WithGRPCWeb() options.
+// NewTestServiceClient constructs a client for the examples.kitchensink.v1.TestService service. By
+// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
+// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
@@ -69,12 +69,12 @@ type testServiceClient struct {
 	test *connect_go.Client[v1.TestRequest, v1.TestResponse]
 }
 
-// Test calls kitchensink.v1.TestService.Test.
+// Test calls examples.kitchensink.v1.TestService.Test.
 func (c *testServiceClient) Test(ctx context.Context, req *connect_go.Request[v1.TestRequest]) (*connect_go.Response[v1.TestResponse], error) {
 	return c.test.CallUnary(ctx, req)
 }
 
-// TestServiceHandler is an implementation of the kitchensink.v1.TestService service.
+// TestServiceHandler is an implementation of the examples.kitchensink.v1.TestService service.
 type TestServiceHandler interface {
 	Test(context.Context, *connect_go.Request[v1.TestRequest]) (*connect_go.Response[v1.TestResponse], error)
 }
@@ -90,7 +90,7 @@ func NewTestServiceHandler(svc TestServiceHandler, opts ...connect_go.HandlerOpt
 		svc.Test,
 		opts...,
 	)
-	return "/kitchensink.v1.TestService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/examples.kitchensink.v1.TestService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TestServiceTestProcedure:
 			testServiceTestHandler.ServeHTTP(w, r)
@@ -104,17 +104,17 @@ func NewTestServiceHandler(svc TestServiceHandler, opts ...connect_go.HandlerOpt
 type UnimplementedTestServiceHandler struct{}
 
 func (UnimplementedTestServiceHandler) Test(context.Context, *connect_go.Request[v1.TestRequest]) (*connect_go.Response[v1.TestResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("kitchensink.v1.TestService.Test is not implemented"))
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("examples.kitchensink.v1.TestService.Test is not implemented"))
 }
 
-// StatusServiceClient is a client for the kitchensink.v1.StatusService service.
+// StatusServiceClient is a client for the examples.kitchensink.v1.StatusService service.
 type StatusServiceClient interface {
 	Status(context.Context, *connect_go.Request[v1.StatusRequest]) (*connect_go.Response[v1.StatusResponse], error)
 }
 
-// NewStatusServiceClient constructs a client for the kitchensink.v1.StatusService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// NewStatusServiceClient constructs a client for the examples.kitchensink.v1.StatusService service.
+// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
+// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
 // connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
@@ -135,12 +135,12 @@ type statusServiceClient struct {
 	status *connect_go.Client[v1.StatusRequest, v1.StatusResponse]
 }
 
-// Status calls kitchensink.v1.StatusService.Status.
+// Status calls examples.kitchensink.v1.StatusService.Status.
 func (c *statusServiceClient) Status(ctx context.Context, req *connect_go.Request[v1.StatusRequest]) (*connect_go.Response[v1.StatusResponse], error) {
 	return c.status.CallUnary(ctx, req)
 }
 
-// StatusServiceHandler is an implementation of the kitchensink.v1.StatusService service.
+// StatusServiceHandler is an implementation of the examples.kitchensink.v1.StatusService service.
 type StatusServiceHandler interface {
 	Status(context.Context, *connect_go.Request[v1.StatusRequest]) (*connect_go.Response[v1.StatusResponse], error)
 }
@@ -156,7 +156,7 @@ func NewStatusServiceHandler(svc StatusServiceHandler, opts ...connect_go.Handle
 		svc.Status,
 		opts...,
 	)
-	return "/kitchensink.v1.StatusService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/examples.kitchensink.v1.StatusService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StatusServiceStatusProcedure:
 			statusServiceStatusHandler.ServeHTTP(w, r)
@@ -170,5 +170,5 @@ func NewStatusServiceHandler(svc StatusServiceHandler, opts ...connect_go.Handle
 type UnimplementedStatusServiceHandler struct{}
 
 func (UnimplementedStatusServiceHandler) Status(context.Context, *connect_go.Request[v1.StatusRequest]) (*connect_go.Response[v1.StatusResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("kitchensink.v1.StatusService.Status is not implemented"))
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("examples.kitchensink.v1.StatusService.Status is not implemented"))
 }

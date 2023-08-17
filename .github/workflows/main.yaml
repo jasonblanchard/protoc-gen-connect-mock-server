@@ -1,0 +1,13 @@
+name: buf-pull-request
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bufbuild/buf-setup-action@v1
+      - name: "Push to BSR"
+        uses: bufbuild/buf-push-action@v1
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          buf_token: ${{ secrets.BUF_TOKEN }}

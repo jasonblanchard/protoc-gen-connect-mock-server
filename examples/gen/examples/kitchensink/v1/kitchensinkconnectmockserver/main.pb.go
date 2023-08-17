@@ -12,8 +12,8 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"github.com/go-faker/faker/v4"
-	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1"
-	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1/greetv1connect"
+	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/kitchensink/v1"
+	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/kitchensink/v1/kitchensinkv1connect"
 
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -108,63 +108,63 @@ func datetime_NewMockTimeZone() *datetime.TimeZone {
 	return mock
 }
 
-func greetv1_NewMockNested() *greetv1.Nested {
-	mock := &greetv1.Nested{
+func kitchensinkv1_NewMockNested() *kitchensinkv1.Nested {
+	mock := &kitchensinkv1.Nested{
 		Test: getStringValue(),
 	}
 	return mock
 }
 
-func greetv1_NewMockGreetRequest() *greetv1.GreetRequest {
-	mock := &greetv1.GreetRequest{
+func kitchensinkv1_NewMockTestRequest() *kitchensinkv1.TestRequest {
+	mock := &kitchensinkv1.TestRequest{
 		Name: getStringValue(),
 	}
 	return mock
 }
 
-func greetv1_NewMockGreetResponse() *greetv1.GreetResponse {
-	mock := &greetv1.GreetResponse{
+func kitchensinkv1_NewMockTestResponse() *kitchensinkv1.TestResponse {
+	mock := &kitchensinkv1.TestResponse{
 		Greeting:   getStringValue(),
-		Inner:      greetv1_NewMockNested(),
-		Thingies:   []*greetv1.Nested{greetv1_NewMockNested()},
+		Inner:      kitchensinkv1_NewMockNested(),
+		Thingies:   []*kitchensinkv1.Nested{kitchensinkv1_NewMockNested()},
 		Greetings:  []string{getStringValue(), getStringValue(), getStringValue()},
 		BoolKind:   getBoolValue(),
 		Int32Kind:  getInt32Value(),
 		Sint32Kind: 123,
 		BytesKind:  []byte{1, 2, 3},
 		FloatKind:  123,
-		Status:     greetv1.Status_STATUS_NOT_OK,
+		Status:     kitchensinkv1.Status_STATUS_NOT_OK,
 		CreatedAt:  datetime_NewMockDateTime(),
 		DoubleKind: 123,
 	}
 	return mock
 }
 
-func greetv1_NewMockStatusRequest() *greetv1.StatusRequest {
-	mock := &greetv1.StatusRequest{}
+func kitchensinkv1_NewMockStatusRequest() *kitchensinkv1.StatusRequest {
+	mock := &kitchensinkv1.StatusRequest{}
 	return mock
 }
 
-func greetv1_NewMockStatusResponse() *greetv1.StatusResponse {
-	mock := &greetv1.StatusResponse{
-		Status: greetv1.Status_STATUS_NOT_OK,
+func kitchensinkv1_NewMockStatusResponse() *kitchensinkv1.StatusResponse {
+	mock := &kitchensinkv1.StatusResponse{
+		Status: kitchensinkv1.Status_STATUS_NOT_OK,
 	}
 	return mock
 }
 
-type GreetServiceMockServer struct{}
+type TestServiceMockServer struct{}
 
-func (GreetServiceMockServer) Greet(context.Context, *connect_go.Request[greetv1.GreetRequest]) (*connect_go.Response[greetv1.GreetResponse], error) {
-	resp := &connect_go.Response[greetv1.GreetResponse]{}
-	resp.Msg = greetv1_NewMockGreetResponse()
+func (TestServiceMockServer) Test(context.Context, *connect_go.Request[kitchensinkv1.TestRequest]) (*connect_go.Response[kitchensinkv1.TestResponse], error) {
+	resp := &connect_go.Response[kitchensinkv1.TestResponse]{}
+	resp.Msg = kitchensinkv1_NewMockTestResponse()
 	return resp, nil
 }
 
 type StatusServiceMockServer struct{}
 
-func (StatusServiceMockServer) Status(context.Context, *connect_go.Request[greetv1.StatusRequest]) (*connect_go.Response[greetv1.StatusResponse], error) {
-	resp := &connect_go.Response[greetv1.StatusResponse]{}
-	resp.Msg = greetv1_NewMockStatusResponse()
+func (StatusServiceMockServer) Status(context.Context, *connect_go.Request[kitchensinkv1.StatusRequest]) (*connect_go.Response[kitchensinkv1.StatusResponse], error) {
+	resp := &connect_go.Response[kitchensinkv1.StatusResponse]{}
+	resp.Msg = kitchensinkv1_NewMockStatusResponse()
 	return resp, nil
 }
 
@@ -178,12 +178,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	GreetServiceserver := &GreetServiceMockServer{}
-	GreetServicepath, GreetServicehandler := greetv1connect.NewGreetServiceHandler(GreetServiceserver)
-	mux.Handle(GreetServicepath, WithLogging(GreetServicehandler))
+	TestServiceserver := &TestServiceMockServer{}
+	TestServicepath, TestServicehandler := kitchensinkv1connect.NewTestServiceHandler(TestServiceserver)
+	mux.Handle(TestServicepath, WithLogging(TestServicehandler))
 
 	StatusServiceserver := &StatusServiceMockServer{}
-	StatusServicepath, StatusServicehandler := greetv1connect.NewStatusServiceHandler(StatusServiceserver)
+	StatusServicepath, StatusServicehandler := kitchensinkv1connect.NewStatusServiceHandler(StatusServiceserver)
 	mux.Handle(StatusServicepath, WithLogging(StatusServicehandler))
 
 	corsHandler := cors.New(cors.Options{

@@ -11,6 +11,7 @@ import (
 	"golang.org/x/exp/slog"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"github.com/go-faker/faker/v4"
 	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1"
 	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1/greetv1connect"
 
@@ -19,57 +20,116 @@ import (
 	"google.golang.org/genproto/googleapis/type/datetime"
 )
 
+var isDynamic bool
+
+func getStringValue() string {
+	if !isDynamic {
+		return "string"
+	}
+
+	type Container struct {
+		Value string
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+
+	if err != nil {
+		return err.Error()
+	}
+
+	return a.Value
+}
+
+func getInt32Value() int32 {
+	if !isDynamic {
+		return 123
+	}
+
+	type Container struct {
+		Value int32
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+
+	if err != nil {
+		return 0
+	}
+
+	return a.Value
+}
+
+func getBoolValue() bool {
+	if !isDynamic {
+		return true
+	}
+
+	type Container struct {
+		Value bool
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+
+	if err != nil {
+		return true
+	}
+
+	return a.Value
+}
+
 func durationpb_NewMockDuration() *durationpb.Duration {
 	mock := &durationpb.Duration{
 		Seconds: 123,
-		Nanos:   123,
+		Nanos:   getInt32Value(),
 	}
 	return mock
 }
 
 func datetime_NewMockDateTime() *datetime.DateTime {
 	mock := &datetime.DateTime{
-		Year:    123,
-		Month:   123,
-		Day:     123,
-		Hours:   123,
-		Minutes: 123,
-		Seconds: 123,
-		Nanos:   123,
+		Year:    getInt32Value(),
+		Month:   getInt32Value(),
+		Day:     getInt32Value(),
+		Hours:   getInt32Value(),
+		Minutes: getInt32Value(),
+		Seconds: getInt32Value(),
+		Nanos:   getInt32Value(),
 	}
 	return mock
 }
 
 func datetime_NewMockTimeZone() *datetime.TimeZone {
 	mock := &datetime.TimeZone{
-		Id:      "string",
-		Version: "string",
+		Id:      getStringValue(),
+		Version: getStringValue(),
 	}
 	return mock
 }
 
 func greetv1_NewMockNested() *greetv1.Nested {
 	mock := &greetv1.Nested{
-		Test: "string",
+		Test: getStringValue(),
 	}
 	return mock
 }
 
 func greetv1_NewMockGreetRequest() *greetv1.GreetRequest {
 	mock := &greetv1.GreetRequest{
-		Name: "string",
+		Name: getStringValue(),
 	}
 	return mock
 }
 
 func greetv1_NewMockGreetResponse() *greetv1.GreetResponse {
 	mock := &greetv1.GreetResponse{
-		Greeting:   "string",
+		Greeting:   getStringValue(),
 		Inner:      greetv1_NewMockNested(),
 		Thingies:   []*greetv1.Nested{greetv1_NewMockNested()},
-		Greetings:  []string{"string", "string", "string"},
-		BoolKind:   false,
-		Int32Kind:  123,
+		Greetings:  []string{getStringValue(), getStringValue(), getStringValue()},
+		BoolKind:   getBoolValue(),
+		Int32Kind:  getInt32Value(),
 		Sint32Kind: 123,
 		BytesKind:  []byte{1, 2, 3},
 		FloatKind:  123,
@@ -111,6 +171,7 @@ func main() {
 	var portVar string
 	flag.StringVar(&portVar, "port", "8080", "port to run the mock server on")
 	flag.StringVar(&portVar, "p", "8080", "port to run the mock server on (shorthand)")
+	flag.BoolVar(&isDynamic, "d", false, "return dynamic values (shorthand)")
 
 	flag.Parse()
 

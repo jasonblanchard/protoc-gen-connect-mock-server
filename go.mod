@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/bufbuild/connect-go v1.9.0
+	github.com/go-faker/faker/v4 v4.1.1
 	github.com/rs/cors v1.9.0
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 	golang.org/x/net v0.14.0

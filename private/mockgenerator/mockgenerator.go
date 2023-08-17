@@ -90,7 +90,7 @@ func GenerateFile(i *GenerateFileInput) error {
 		for _, field := range msg.Fields {
 			input.Fields = append(input.Fields, Field{
 				Name:  field.GoName,
-				Value: fieldValueString(field, pkgNamespace, i.Dependencies), // TODO: This isn't right, need to get which file it comes from
+				Value: fieldValueString(field, pkgNamespace, i.Dependencies),
 			})
 		}
 
@@ -176,14 +176,14 @@ func fieldValueString(field *protogen.Field, pkgNamespace string, deps []*Depend
 		if field.Desc.Message() != nil {
 			return "[]*" + pkgNamespace + "." + string(field.Message.Desc.Name()) + "{" + pkgNamespace + "_NewMock" + string(field.Message.Desc.Name()) + "()}"
 		} else {
-			return fmt.Sprintf("[]string{%v, %v, %v}", getStaticFieldValue(field, pkgNamespace), getStaticFieldValue(field, pkgNamespace), getStaticFieldValue(field, pkgNamespace))
+			return fmt.Sprintf("[]string{%v, %v, %v}", getFieldValue(field, pkgNamespace), getFieldValue(field, pkgNamespace), getFieldValue(field, pkgNamespace))
 		}
 	} else {
 		if field.Desc.Message() != nil {
 			// return pkgNamespace + "_NewMock" + string(field.Message.Desc.Name()) + "()"
 			return namespace + "_NewMock" + string(field.Message.Desc.Name()) + "()"
 		} else {
-			return getStaticFieldValue(field, pkgNamespace)
+			return getFieldValue(field, pkgNamespace)
 		}
 	}
 }
@@ -192,17 +192,19 @@ func fieldValueString(field *protogen.Field, pkgNamespace string, deps []*Depend
 // 	return "&" + pkgNamespace + "." + field.Parent.GoIdent.GoName + "_" + field.GoName + "{}"
 // }
 
-func getStaticFieldValue(field *protogen.Field, pkgNamespace string) string {
+func getFieldValue(field *protogen.Field, pkgNamespace string) string {
 	// TODO: GroupKind?
 	switch field.Desc.Kind() {
 	case protoreflect.EnumKind:
 		return fmt.Sprintf("%s.%s_%s", pkgNamespace, field.GoName, field.Enum.Values[len(field.Enum.Values)-1].Desc.Name())
 	case protoreflect.BoolKind:
-		return "false"
-	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Uint32Kind, protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Uint64Kind, protoreflect.Sfixed32Kind, protoreflect.Fixed32Kind, protoreflect.FloatKind, protoreflect.Sfixed64Kind, protoreflect.Fixed64Kind, protoreflect.DoubleKind:
+		return "getBoolValue()"
+	case protoreflect.Int32Kind:
+		return "getInt32Value()"
+	case protoreflect.Sint32Kind, protoreflect.Uint32Kind, protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Uint64Kind, protoreflect.Sfixed32Kind, protoreflect.Fixed32Kind, protoreflect.FloatKind, protoreflect.Sfixed64Kind, protoreflect.Fixed64Kind, protoreflect.DoubleKind:
 		return "123"
 	case protoreflect.StringKind:
-		return "\"string\""
+		return "getStringValue()"
 	case protoreflect.BytesKind:
 		return "[]byte{1,2,3}"
 	default:

@@ -40,12 +40,74 @@ import (
 	"golang.org/x/exp/slog"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"github.com/go-faker/faker/v4"
 	{{ .GoImportPath }}
 	"{{ .ConnectFilePath }}"
 	{{ range $dep := .Dependencies }}
 		{{ $dep }}
 	{{ end }}
-)`
+)
+
+var isDynamic bool
+
+func getStringValue() string {
+	if !isDynamic {
+		return "string"
+	}
+
+	type Container struct {
+		Value string
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+	
+	if err != nil {
+		return err.Error()
+	}
+
+	return a.Value
+}
+
+func getInt32Value() int32 {
+	if !isDynamic {
+		return 123
+	}
+
+	type Container struct {
+		Value int32
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+	
+	if err != nil {
+		return 0
+	}
+
+	return a.Value
+}
+
+func getBoolValue() bool {
+	if !isDynamic {
+		return true
+	}
+
+	type Container struct {
+		Value bool
+	}
+
+	a := &Container{}
+	err := faker.FakeData(a)
+	
+	if err != nil {
+		return true
+	}
+
+	return a.Value
+}
+
+`
 
 type MainFuncHandler struct {
 	ConnectPkg string
@@ -84,6 +146,7 @@ const mainFuncTpl = `func main() {
 	var portVar string
 	flag.StringVar(&portVar, "port", "8080", "port to run the mock server on")
 	flag.StringVar(&portVar, "p", "8080", "port to run the mock server on (shorthand)")
+	flag.BoolVar(&isDynamic, "d", false, "return dynamic values (shorthand)")
 
 	flag.Parse()
 

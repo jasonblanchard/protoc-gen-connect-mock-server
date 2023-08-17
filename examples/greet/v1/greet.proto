@@ -14,7 +14,7 @@ message GreetRequest {
 
 message GreetResponse {
   string greeting = 1;
-  Nested nested = 2;
+  Nested inner = 2;
   repeated Nested thingies = 3;
   repeated string greetings = 4;
   bool bool_kind = 5;
@@ -23,7 +23,7 @@ message GreetResponse {
   bytes bytes_kind = 8;
   float float_kind = 10;
   Status status = 11;
-  // google.type.DateTime created_at = 12;
+  google.type.DateTime created_at = 12;
 }
 
 service GreetService {

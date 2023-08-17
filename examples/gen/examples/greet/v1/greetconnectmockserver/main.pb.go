@@ -11,65 +11,99 @@ import (
 	"golang.org/x/exp/slog"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	v1 "github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1"
+	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1"
 	"github.com/jasonblanchard/protoc-gen-connect-mock-server/examples/gen/examples/greet/v1/greetv1connect"
+
+	"google.golang.org/protobuf/types/known/durationpb"
+
+	"google.golang.org/genproto/googleapis/type/datetime"
 )
 
-func NewMockNested() *v1.Nested {
-	mock := &v1.Nested{
+func durationpb_NewMockDuration() *durationpb.Duration {
+	mock := &durationpb.Duration{
+		Seconds: 123,
+		Nanos:   123,
+	}
+	return mock
+}
+
+func datetime_NewMockDateTime() *datetime.DateTime {
+	mock := &datetime.DateTime{
+		Year:    123,
+		Month:   123,
+		Day:     123,
+		Hours:   123,
+		Minutes: 123,
+		Seconds: 123,
+		Nanos:   123,
+	}
+	return mock
+}
+
+func datetime_NewMockTimeZone() *datetime.TimeZone {
+	mock := &datetime.TimeZone{
+		Id:      "string",
+		Version: "string",
+	}
+	return mock
+}
+
+func greetv1_NewMockNested() *greetv1.Nested {
+	mock := &greetv1.Nested{
 		Test: "string",
 	}
 	return mock
 }
 
-func NewMockGreetRequest() *v1.GreetRequest {
-	mock := &v1.GreetRequest{
+func greetv1_NewMockGreetRequest() *greetv1.GreetRequest {
+	mock := &greetv1.GreetRequest{
 		Name: "string",
 	}
 	return mock
 }
 
-func NewMockGreetResponse() *v1.GreetResponse {
-	mock := &v1.GreetResponse{
+func greetv1_NewMockGreetResponse() *greetv1.GreetResponse {
+	mock := &greetv1.GreetResponse{
 		Greeting:   "string",
-		Nested:     NewMockNested(),
-		Thingies:   []*v1.Nested{NewMockNested()},
+		Inner:      greetv1_NewMockNested(),
+		Thingies:   []*greetv1.Nested{greetv1_NewMockNested()},
 		Greetings:  []string{"string", "string", "string"},
 		BoolKind:   false,
 		Int32Kind:  123,
 		Sint32Kind: 123,
 		BytesKind:  []byte{1, 2, 3},
 		FloatKind:  123,
-		Status:     v1.Status_STATUS_NOT_OK,
+		Status:     greetv1.Status_STATUS_NOT_OK,
+		CreatedAt:  datetime_NewMockDateTime(),
 	}
 	return mock
 }
 
-func NewMockStatusRequest() *v1.StatusRequest {
-	mock := &v1.StatusRequest{}
+func greetv1_NewMockStatusRequest() *greetv1.StatusRequest {
+	mock := &greetv1.StatusRequest{}
 	return mock
 }
 
-func NewMockStatusResponse() *v1.StatusResponse {
-	mock := &v1.StatusResponse{
-		Status: v1.Status_STATUS_NOT_OK,
+func greetv1_NewMockStatusResponse() *greetv1.StatusResponse {
+	mock := &greetv1.StatusResponse{
+		Status: greetv1.Status_STATUS_NOT_OK,
 	}
 	return mock
 }
 
 type GreetServiceMockServer struct{}
 
-func (GreetServiceMockServer) Greet(context.Context, *connect_go.Request[v1.GreetRequest]) (*connect_go.Response[v1.GreetResponse], error) {
-	resp := &connect_go.Response[v1.GreetResponse]{}
-	resp.Msg = NewMockGreetResponse()
+func (GreetServiceMockServer) Greet(context.Context, *connect_go.Request[greetv1.GreetRequest]) (*connect_go.Response[greetv1.GreetResponse], error) {
+	resp := &connect_go.Response[greetv1.GreetResponse]{}
+	resp.Msg = greetv1_NewMockGreetResponse()
 	return resp, nil
 }
 
 type StatusServiceMockServer struct{}
 
-func (StatusServiceMockServer) Status(context.Context, *connect_go.Request[v1.StatusRequest]) (*connect_go.Response[v1.StatusResponse], error) {
-	resp := &connect_go.Response[v1.StatusResponse]{}
-	resp.Msg = NewMockStatusResponse()
+func (StatusServiceMockServer) Status(context.Context, *connect_go.Request[greetv1.StatusRequest]) (*connect_go.Response[greetv1.StatusResponse], error) {
+	resp := &connect_go.Response[greetv1.StatusResponse]{}
+	resp.Msg = greetv1_NewMockStatusResponse()
 	return resp, nil
 }
 

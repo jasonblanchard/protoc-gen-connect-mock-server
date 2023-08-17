@@ -1,3 +1,7 @@
+- oneOf
+  - Create NewMock* messages
+  - Per field, aggregate one per parent
+
 - Dynamic mode - random values for types
   - Truly random per type?
   - And/or semantically random? i.e. "things that look like an email"

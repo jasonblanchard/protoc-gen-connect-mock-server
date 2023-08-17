@@ -7,8 +7,18 @@ import (
 
 func main() {
 	protogen.Options{}.Run(func(gen *protogen.Plugin) error {
+		dependencies := []*mockgenerator.Dependency{}
+
 		for _, f := range gen.Files {
 			if !f.Generate {
+
+				dep := &mockgenerator.Dependency{
+					GoImportPath:  f.GoImportPath.String(),
+					GoPackageName: string(f.GoPackageName),
+					Messages:      append([]*protogen.Message{}, f.Messages...),
+				}
+
+				dependencies = append(dependencies, dep)
 				continue
 			}
 
@@ -16,10 +26,11 @@ func main() {
 			g := gen.NewGeneratedFile(filename, f.GoImportPath)
 
 			input := &mockgenerator.GenerateFileInput{
-				PkgName: "protoc-gen-connect-mock-server",
-				File: f,
-				Filename: filename,
+				PkgName:       "protoc-gen-connect-mock-server",
+				File:          f,
+				Filename:      filename,
 				GeneratedFile: g,
+				Dependencies:  dependencies,
 			}
 			err := mockgenerator.GenerateFile(input)
 

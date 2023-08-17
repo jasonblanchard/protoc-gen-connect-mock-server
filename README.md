@@ -13,7 +13,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: <your Go module>
+    default: <your Go module>/gen
 plugins:
   - plugin: buf.build/protocolbuffers/go
     out: gen
@@ -49,19 +49,25 @@ service ElizaService {
 Generate the build:
 
 ```bash
-$ buf build
+buf generate
+```
+
+Install dependencies
+
+```bash
+go mod tidy
 ```
 
 Run the mock server
 
 ```bash
-$ go run gen/eliza/v1/elizaconnectmockserver/main.pb.go
+go run gen/eliza/v1/elizaconnectmockserver/main.pb.go
 ```
 
 Test the service:
 
 ```bash
-$ buf curl --schema eliza/v1/eliza.proto --data '{"sentence": "hello"}' http://localhost:8080/eliza.v1.ElizaService/Say
+buf curl --schema eliza/v1/eliza.proto --data '{"sentence": "hello"}' http://localhost:8080/eliza.v1.ElizaService/Say
 ```
 
 You should get a response like this:
@@ -75,7 +81,7 @@ You should get a response like this:
 Run it in dynamic mode with the `-d` flag
 
 ```bash
-$ go run gen/eliza/v1/elizaconnectmockserver/main.pb.go -d
+go run gen/eliza/v1/elizaconnectmockserver/main.pb.go -d
 ```
 
 Running the same `buf curl` command above should return a different result each time like this:

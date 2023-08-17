@@ -24,6 +24,7 @@ message GreetResponse {
   float float_kind = 10;
   Status status = 11;
   google.type.DateTime created_at = 12;
+  double double_kind = 13;
 }
 
 service GreetService {

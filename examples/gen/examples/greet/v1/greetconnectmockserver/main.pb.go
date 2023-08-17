@@ -135,6 +135,7 @@ func greetv1_NewMockGreetResponse() *greetv1.GreetResponse {
 		FloatKind:  123,
 		Status:     greetv1.Status_STATUS_NOT_OK,
 		CreatedAt:  datetime_NewMockDateTime(),
+		DoubleKind: 123,
 	}
 	return mock
 }
